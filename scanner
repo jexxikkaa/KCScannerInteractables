@@ -1,0 +1,68 @@
+using UnityEngine;
+using UnityEngine.Events;
+using System.Linq;
+
+namespace KeycardSystem
+{
+    public class KCScannerInteractable : MonoBehaviour
+    {
+        [Header("Key ScriptableObject")]
+        [SerializeField] private Keycard keyScriptable = null;
+
+        [Header("Scanner - Audio Clips")]
+        [SerializeField] private Sound deniedScannerSound = null;
+        [SerializeField] private Sound acceptedScannerSound = null;
+
+        [Space(10)] [SerializeField] private UnityEvent onUnlock = null;
+
+        // Static variable to hold the random Key ID
+        private static string randomKeyID;
+
+        private void Awake()
+        {
+            // Generate the random Key ID once at the start of the game
+            if (string.IsNullOrEmpty(randomKeyID))
+            {
+                randomKeyID = Random.Range(1, 51).ToString();
+                Debug.Log($"Generated Random Key ID (Persistent): {randomKeyID}");
+            }
+        }
+
+        public void CheckScanner()
+        {
+            Debug.Log($"Checking against Persistent Key ID: {randomKeyID}");
+
+            // Find a matching keycard in the inventory
+            Keycard matchingKey = KCInventory.instance.Keys.FirstOrDefault(key => key.KeyID == randomKeyID);
+
+            if (matchingKey != null)
+            {
+                // Log the details of the matching keycard
+                Debug.Log($"Matching Keycard Found: {matchingKey.KeyName}, Key ID: {matchingKey.KeyID}");
+                ScannerInteraction();
+            }
+            else
+            {
+                Debug.Log("No matching keycard found.");
+                DeniedScannerSound();
+            }
+        }
+
+        private void ScannerInteraction()
+        {
+            gameObject.tag = "Untagged";
+            onUnlock.Invoke();
+            AcceptedScannerSound();
+        }
+
+        private void DeniedScannerSound()
+        {
+            KCAudioManager.instance.Play(deniedScannerSound);
+        }
+
+        private void AcceptedScannerSound()
+        {
+            KCAudioManager.instance.Play(acceptedScannerSound);
+        }
+    }
+}
