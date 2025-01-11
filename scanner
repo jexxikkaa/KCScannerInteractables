@@ -23,7 +23,7 @@ namespace KeycardSystem
             // Generate the random Key ID once at the start of the game
             if (string.IsNullOrEmpty(randomKeyID))
             {
-                randomKeyID = Random.Range(1, 51).ToString();
+                randomKeyID = Random.Range(1, 52).ToString();
                 Debug.Log($"Generated Random Key ID (Persistent): {randomKeyID}");
             }
         }
